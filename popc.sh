@@ -2,12 +2,16 @@
 
 set -e
 
-cd "$(dirname "$0")"
+START_PATH=$(pwd)
+POPC_SOURCE_PATH=$(realpath "$0")
+cd "$(dirname "$POPC_SOURCE_PATH")"
 
 SANDBOX_DIR="$HOME/.local/share/popc"
 
 docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) \
     -t popc:latest .
+
+cd $START_PATH
 
 docker run \
     --rm \
