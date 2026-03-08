@@ -16,9 +16,16 @@ cd $START_PATH
 docker run \
     --rm \
     -it \
-    --privileged \
+    --cap-add NET_ADMIN \
+    -v "/usr/local/go:/usr/local/go:ro" \
+    -v "$HOME/go/bin:/lib/go/bin:ro" \
+    -v "$(go env GOCACHE):/lib/go/cache:rw" \
+    -v "$(go env GOMODCACHE):/lib/go/modcache:rw" \
     -v "$(pwd):/workspace:rw" \
-    -v "$SANDBOX_DIR:/home/opencode/popc-sandbox:rw" \
+    -v "$SANDBOX_DIR:/home/opencode:rw" \
     -w /workspace \
+    --env GOCACHE=/lib/go/cache \
+    --env GOMODCACHE=/lib/go/modcache \
+    --env GOPATH=/lib/go \
     popc:latest \
     "$@"

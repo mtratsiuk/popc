@@ -20,29 +20,12 @@ cleanup() {
 }
 trap cleanup EXIT SIGTERM SIGINT
 
-chmod 777 /home/opencode/popc-sandbox 2>/dev/null || true
+chmod 777 /home/opencode 2>/dev/null || true
 
-su opencode -s /bin/sh -c '
-    exec bwrap \
-        --die-with-parent \
-        --unshare-all \
-        --share-net \
-        --ro-bind /usr /usr \
-        --ro-bind /lib /lib \
-        --ro-bind /bin /bin \
-        --ro-bind /sbin /sbin \
-        --ro-bind /etc /etc \
-        --dir /home/opencode \
-        --bind /workspace /workspace \
-        --bind /home/opencode/popc-sandbox /home/opencode \
-        --proc /proc \
-        --dev /dev \
-        --tmpfs /tmp \
-        --chdir /workspace \
-        --setenv HOME /home/opencode \
-        --setenv HTTP_PROXY "http://127.0.0.1:'"$TINYPROXY_PORT"'" \
-        --setenv HTTPS_PROXY "http://127.0.0.1:'"$TINYPROXY_PORT"'" \
-        --setenv NO_PROXY "127.0.0.1:'"$OPENCODE_PORT"'" \
-        -- \
-        opencode --port "'"$OPENCODE_PORT"'" "$@"
+exec su opencode -s /bin/sh -c '
+    export HOME=/home/opencode
+    export HTTP_PROXY="http://127.0.0.1:'"$TINYPROXY_PORT"'"
+    export HTTPS_PROXY="http://127.0.0.1:'"$TINYPROXY_PORT"'"
+    export NO_PROXY="127.0.0.1:'"$OPENCODE_PORT"'"
+    exec opencode --port "'"$OPENCODE_PORT"'" "$@"
 ' -- "$@"

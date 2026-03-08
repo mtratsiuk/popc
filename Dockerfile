@@ -1,23 +1,33 @@
-FROM ghcr.io/anomalyco/opencode:latest
+FROM fedora:42
 
-RUN apk add --no-cache \
+RUN dnf install -y \
+  curl \
+  tar \
+  file \
+  which \
+  ripgrep \
+  gcc \
+  gcc-c++ \
+  mesa-libGL-devel libXi-devel libXcursor-devel libXrandr-devel libXinerama-devel wayland-devel libxkbcommon-devel \
   tinyproxy \
-  bubblewrap \
-  iptables \
+  iptables-nft \
   git \
-  bash
+  bash \
+  && dnf clean all \
+  && ln -sf /usr/sbin/iptables-nft /usr/sbin/iptables \
+  && ln -sf /usr/sbin/ip6tables-nft /usr/sbin/ip6tables
 
-COPY --from=golang:1.26-alpine /usr/local/go/ /usr/local/go/
-ENV PATH="/usr/local/go/bin:/lib/go/bin:${PATH}"
-
-RUN go env -w GOPATH=/lib/go \
-  && go install golang.org/x/tools/gopls@v0.21.1
+RUN curl -L https://github.com/anomalyco/opencode/releases/download/v1.2.21/opencode-linux-x64.tar.gz | \
+  tar -xz -C /usr/local/bin opencode
 
 ARG UID=1000
 ARG GID=1000
 
-RUN addgroup -g $GID opencode \
-  && adduser -G opencode -u $UID opencode -D
+RUN groupadd -g $GID opencode \
+  && useradd -g opencode -u $UID opencode
+
+ENV PATH="/usr/local/go/bin:/usr/local/bin:/lib/go/bin:/lib/opencode/bin:${PATH}"
+ENV CGO_ENABLED=1
 
 COPY tinyproxy.conf /etc/tinyproxy/tinyproxy.conf
 COPY tinyproxy-filter /etc/tinyproxy/filter
