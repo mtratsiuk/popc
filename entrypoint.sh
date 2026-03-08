@@ -20,12 +20,13 @@ cleanup() {
 }
 trap cleanup EXIT SIGTERM SIGINT
 
-chmod 777 /home/opencode 2>/dev/null || true
+chown opencode:$(id -g opencode) /home/opencode 2>/dev/null || true
 
 exec su opencode -s /bin/sh -c '
     export HOME=/home/opencode
     export HTTP_PROXY="http://127.0.0.1:'"$TINYPROXY_PORT"'"
     export HTTPS_PROXY="http://127.0.0.1:'"$TINYPROXY_PORT"'"
     export NO_PROXY="127.0.0.1:'"$OPENCODE_PORT"'"
+    chmod 740 /home/opencode 2>/dev/null || true
     exec opencode --port "'"$OPENCODE_PORT"'" "$@"
 ' -- "$@"
