@@ -17,7 +17,7 @@ RUN dnf install -y \
   && ln -sf /usr/sbin/iptables-nft /usr/sbin/iptables \
   && ln -sf /usr/sbin/ip6tables-nft /usr/sbin/ip6tables
 
-RUN curl -L https://github.com/anomalyco/opencode/releases/download/v1.2.21/opencode-linux-x64.tar.gz | \
+RUN curl -L https://github.com/anomalyco/opencode/releases/download/v1.14.25/opencode-linux-x64.tar.gz | \
   tar -xz -C /usr/local/bin opencode
 
 ARG UID=1000
